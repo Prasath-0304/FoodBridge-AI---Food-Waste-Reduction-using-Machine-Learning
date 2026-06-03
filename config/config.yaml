@@ -1,0 +1,106 @@
+# FoodBridge AI Configuration
+
+project:
+  name: "FoodBridge AI"
+  version: "1.0.0"
+  description: "AI/ML system to reduce food waste by connecting surplus sources with food-insecure populations"
+
+data:
+  raw_path: "data/raw/"
+  processed_path: "data/processed/"
+  train_test_split: 0.8
+  validation_split: 0.15
+  random_state: 42
+
+preprocessing:
+  handle_missing: "mean"  # mean, median, forward_fill
+  outlier_method: "iqr"   # iqr, zscore
+  normalize_method: "standard"  # standard, minmax
+  encode_categorical: "onehot"  # onehot, label, target
+
+models:
+  ml:
+    surplus_prediction:
+      algorithms: ["linear_regression", "random_forest", "xgboost"]
+      random_forest:
+        n_estimators: 100
+        max_depth: 15
+        min_samples_split: 5
+      xgboost:
+        n_estimators: 100
+        max_depth: 6
+        learning_rate: 0.1
+    
+    demand_forecasting:
+      algorithm: "lstm"
+      lstm:
+        units: 64
+        layers: 2
+        dropout: 0.2
+        epochs: 50
+        batch_size: 32
+        sequence_length: 7
+    
+    clustering:
+      algorithms: ["kmeans", "dbscan"]
+      kmeans:
+        n_clusters: 5
+        init: "k-means++"
+      dbscan:
+        eps: 0.5
+        min_samples: 5
+  
+  dl:
+    food_quality_cnn:
+      model: "efficientnet_b0"
+      input_size: [224, 224, 3]
+      classes: ["fresh", "moderate", "spoiled"]
+      epochs: 50
+      batch_size: 32
+      learning_rate: 0.001
+    
+    spoilage_forecasting:
+      model: "lstm"
+      units: 64
+      layers: 2
+      dropout: 0.2
+      epochs: 50
+      batch_size: 32
+    
+    sentiment_analysis:
+      model: "distilbert-base-uncased"
+      max_length: 128
+      epochs: 3
+      batch_size: 16
+
+optimization:
+  routing:
+    solver: "ortools"
+    time_limit_seconds: 60
+    first_solution_strategy: "PATH_CHEAPEST_ARC"
+
+api:
+  host: "0.0.0.0"
+  port: 8000
+  reload: true
+  debug: true
+  cors_origins: ["*"]
+
+dashboard:
+  port: 8501
+  theme: "light"
+  wide_mode: true
+
+mlflow:
+  tracking_uri: "http://localhost:5000"
+  experiment_name: "foodbridge-ai"
+  artifact_location: "mlruns"
+
+deployment:
+  docker_image: "foodbridge-ai:latest"
+  docker_registry: "local"
+  production: false
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
